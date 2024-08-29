@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Love Letter Puzzle for Khushi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #ffe6e6;
+        }
+        .game-container {
+            text-align: center;
+        }
+        .puzzle-container {
+            display: flex;
+            flex-wrap: wrap;
+            width: 400px;
+            height: 300px;
+            margin: 20px auto;
+            border: 2px solid #ff9999;
+            background-color: #ffffff;
+        }
+        .puzzle-piece {
+            width: calc(33.33% - 4px);
+            height: calc(33.33% - 4px);
+            border: 1px solid #ffcccc;
+            margin: 1px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-size: 14px;
+            background-color: #fff0f0;
+            transition: background-color 0.3s;
+        }
+        .puzzle-piece.selected {
+            background-color: #ffcccc;
+        }
+        .puzzle-piece.correct {
+            background-color: #e6ffe6;
+        }
+        button {
+            background-color: #ff9999;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        #message {
+            font-weight: bold;
+            color: #ff6666;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Love Letter Puzzle for Khushi</h1>
+        <p>Reassemble the love letter by clicking on the pieces in the correct order.</p>
+        <div class="puzzle-container" id="puzzleContainer"></div>
+        <button onclick="checkOrder()">Check Order</button>
+        <p id="message"></p>
+    </div>
+
+    <script>
+        const loveLetter = [
+            "My dearest Khushi,",
+            "I'm truly sorry",
+            "for my mistakes.",
+            "You mean",
+            "the world to me",
+            "and I promise",
+            "to do better.",
+            "I love you",
+            "always."
+        ];
+
+        let currentOrder = [];
+        let shuffledIndices = [];
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function createPuzzle() {
+            const puzzleContainer = document.getElementById('puzzleContainer');
+            puzzleContainer.innerHTML = ''; // Clear existing pieces
+            currentOrder = [];
+            shuffledIndices = [...Array(loveLetter.length).keys()];
+            shuffleArray(shuffledIndices);
+
+            shuffledIndices.forEach((originalIndex, shuffledIndex) => {
+                const piece = document.createElement('div');
+                piece.className = 'puzzle-piece';
+                piece.textContent = loveLetter[originalIndex];
+                piece.addEventListener('click', () => selectPiece(shuffledIndex));
+                puzzleContainer.appendChild(piece);
+            });
+        }
+
+        function selectPiece(index) {
+            const pieces = document.querySelectorAll('.puzzle-piece');
+            if (currentOrder.includes(index)) {
+                // Deselect the piece
+                pieces[index].classList.remove('selected');
+                currentOrder = currentOrder.filter(i => i !== index);
+            } else {
+                // Select the piece
+                pieces[index].classList.add('selected');
+                currentOrder.push(index);
+            }
+        }
+
+        function checkOrder() {
+            const pieces = document.querySelectorAll('.puzzle-piece');
+            let correct = true;
+            let allSelected = currentOrder.length === loveLetter.length;
+
+            if (!allSelected) {
+                document.getElementById('message').textContent = "Please select all pieces before checking.";
+                return;
+            }
+
+            currentOrder.forEach((shuffledIndex, position) => {
+                const originalIndex = shuffledIndices[shuffledIndex];
+                if (originalIndex !== position) {
+                    correct = false;
+                }
+            });
+
+            if (correct) {
+                pieces.forEach(piece => piece.classList.add('correct'));
+                document.getElementById('message').innerHTML = "Perfect! You've reassembled the love letter correctly!<br><br>" +
+                    "<span style='color: #ff4d4d; font-size: 1.2em;'>I truly love you, Khushi. ❤️</span>";
+            } else {
+                document.getElementById('message').textContent = "The order is not correct. Let's try again!";
+                setTimeout(() => {
+                    createPuzzle(); // Reshuffle and start over
+                }, 1500);
+            }
+        }
+
+        createPuzzle();
+    </script>
+</body>
+</html>
